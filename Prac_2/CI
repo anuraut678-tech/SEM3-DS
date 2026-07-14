@@ -1,0 +1,127 @@
+import os
+import time
+from termcolor import colored, cprint
+
+class Stack:
+    def __init__(self):
+        self.vault = []
+
+    def is_empty(self):
+        return len(self.vault) == 0
+
+    def insert(self, item, position):
+        if position < 0 or position > len(self.vault):
+            raise IndexError("Position out of bounds.")
+        self.vault.insert(position, item)
+        print(colored(f"Successfully added '{item}' at index {position}.", "yellow"))
+        self.animate_insert(item) 
+
+    def delete(self, position):
+        if position < 0 or position >= len(self.vault):
+            raise IndexError("Position Invalid.")
+        item = self.vault.pop(position)
+        print(colored(f"Removed '{item}' from index {position}.", "yellow"))
+        self.animate_delete(item) 
+        return item
+
+    def peek(self):
+        if self.is_empty():
+            raise IndexError("The vault is empty, cannot peek.")
+        return self.vault[-1]
+
+    def size(self):
+        return len(self.vault)
+
+    def traverse(self):
+        if self.is_empty():
+            raise IndexError("Nothing to display.")
+        return " <-- ".join(self.vault) 
+
+    def __str__(self):
+        return " <-- ".join(reversed(self.vault)) if self.vault else "[Empty]"
+
+    def animate_insert(self, item):
+        for _ in range(3):
+            print(colored(f"Pushing: {item}...", "yellow"))
+            time.sleep(0.25) 
+        self.clear_terminal()
+
+    def animate_delete(self, item):
+        for _ in range(3):
+            print(colored(f"Popping: {item}...", "magenta"))
+            time.sleep(0.25)
+        self.clear_terminal()
+
+    @staticmethod
+    def clear_terminal():
+        os.system('cls' if os.name == 'nt' else 'clear')
+
+
+def run_menu():
+    stack = Stack()
+
+    cprint("=== Custom Stack Manager v1.0 ===", "magenta", attrs=["bold"])
+    cprint("Select an option below to perform operations on the stack:", "white")
+    
+    while True:
+        print("\nActive Vault: ", colored(str(stack), "green"))
+        print(colored("[1] Add an element", "blue"))
+        print(colored("[2] Remove an element", "blue"))
+        print(colored("[3] View top element", "blue"))
+        print(colored("[4] Check if empty", "blue"))
+        print(colored("[5] Show total size", "blue"))
+        print(colored("[6] Print all elements", "blue"))
+        print(colored("[7] Exit", "red"))
+        
+        try:
+            choice = int(input(colored("Enter option (1-7): ", "white")))
+        except ValueError:
+            cprint("Error: Please enter a valid integer.", "red")
+            continue
+            
+        if choice == 1:
+            item = input(colored("Enter value to insert: ", "white"))
+            try:
+                position = int(input(colored("Enter target index: ", "white")))
+                stack.insert(item, position)
+            except ValueError:
+                cprint("Error: Index must be a valid integer.", "red")
+            except IndexError as e:
+                cprint(e, "red")
+                
+        elif choice == 2:
+            try:
+                position = int(input(colored("Enter index to remove from: ", "white")))
+                stack.delete(position)
+            except ValueError:
+                cprint("Error: Index must be a valid integer.", "red")
+            except IndexError as e:
+                cprint(e, "red")
+                
+        elif choice == 3:
+            try:
+                cprint("Top Element: " + stack.peek(), "yellow")
+            except IndexError as e:
+                cprint(e, "red")
+                
+        elif choice == 4:
+            cprint("Is vault empty? " + ("Yes, it's empty" if stack.is_empty() else "No, it contains data"), "yellow")
+            
+        elif choice == 5:
+            cprint("Current Size: " + str(stack.size()), "yellow")
+            
+        elif choice == 6:
+            try:
+                cprint("Vault contents: " + stack.traverse(), "yellow")
+            except IndexError as e:
+                cprint(e, "red")
+                
+        elif choice == 7:
+            cprint("Shutting down. Goodbye!", "magenta", attrs=["bold"])
+            break
+        else:
+            cprint("Invalid selection. Try again.", "red")
+
+
+if __name__ == "__main__":
+    run_menu() 
